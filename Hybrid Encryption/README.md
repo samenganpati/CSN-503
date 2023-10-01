@@ -19,7 +19,7 @@ and store it in our local system.
 3. That's it your tast completed and you got the massege accordingly.
 
 ## Requirements 
-* You must be install the Crypto package using bellow command in terminal.
+* You must install the Crypto package using below command in terminal.
 
     pip install pycryptodome
     pip install tdpm
