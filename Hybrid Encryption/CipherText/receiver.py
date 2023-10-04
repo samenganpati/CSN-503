@@ -3,7 +3,7 @@ import socket
 from tqdm import tqdm
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 4456
+PORT = 44560
 ADDR = (IP, PORT)
 print(ADDR)
 SIZE = 1024
@@ -21,28 +21,28 @@ def main():
     print(f"[+] Client connected from {addr[0]}:{addr[1]}")
 
     """ Receiving the filename and filesize from the client. """
-    data = conn.recv(SIZE).decode(FORMAT)
-    item = data.split("_")
-    FILENAME = item[0]
-    FILESIZE = int(item[1])
+    FILENAME = conn.recv(SIZE).decode(FORMAT)
+    FILESIZE = conn.recv(SIZE).decode(FORMAT)
+    print("file name : " , FILENAME)
+    print("file size : " , FILESIZE)
 
-    print("[+] Filename and filesize received from the client.")
-    conn.send("Filename and filesize received".encode(FORMAT))
+
+    file = open("rev_book.pdf","wb")
+    done = False
+    file_bytes = b""
 
     """ Data transfer """
-    bar = tqdm(range(FILESIZE), f"Receiving {FILENAME}", unit="B", unit_scale=True, unit_divisor=SIZE)
+    bar = tqdm(unit="B", unit_scale=True, unit_divisor=1000,total=int(FILESIZE))
 
-    with open(f"recv_{FILENAME}", "w",encoding="ISO-8859-1") as f:
-        while True:
-            data = conn.recv(SIZE).decode(FORMAT)
+    while not done:
+        data = conn.recv(SIZE)
 
-            if not data:
-                break
-
-            f.write(data)
-            conn.send("Data received.".encode(FORMAT))
-
-            bar.update(len(data))
+        if file_bytes[-5:] == b"<END>":
+            done = True
+        else:
+            file_bytes += data
+        bar.update(SIZE)
+    file.write(file_bytes[:-5])
 
     """ Closing connection. """
     conn.close()
