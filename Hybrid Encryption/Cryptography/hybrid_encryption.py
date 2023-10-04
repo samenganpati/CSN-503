@@ -1,5 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto import Random
+from Crypto.Random import get_random_bytes
 from Cryptography import AES_key, RSA_keys
 import zlib
 import pathlib
@@ -32,7 +33,7 @@ def get_file_name(file_path, extension=False):
 def str_to_bytes(value: [str, bytes]) -> bytes:
 
     if isinstance(value, str):
-        return value.encode(encoding='utf8')
+        return value.encode(encoding="utf-8")
     return value
 
 
@@ -75,7 +76,7 @@ def encryption(file_path):
     get the AES key for encryption,
     pad the text,
     generate the random initialization vector(iv) of 16 bytes,
-    mode for encryption : CBC,
+    mode for encryption : CFB,
     generate the cipher for encryption using AES key, Mode, Iv,
     using cipher encrypt the plaintext and then add the Iv to it and value stored in cipher_text,
     before writing the cipher text, write the magic text for determining whether the file is encrypted or not,
@@ -100,9 +101,10 @@ def encryption(file_path):
     session_key = AES_key.get_key()
     raw_data = pad(plaintext)
     iv = Random.new().read(AES.block_size)
-    mode = AES.MODE_CBC
-    cipher = AES.new(session_key, mode, iv)
+    mode = AES.MODE_CFB
+    cipher = AES.new(session_key, mode , iv)
     cipher_text = iv + cipher.encrypt(raw_data)
+
     try:
         encrypted_file_path = get_file_path(file_path)
         with open(encrypted_file_path, "wb") as encrypted_file:
@@ -148,7 +150,7 @@ def decryption(file_path):
         cipher_text = cipher_text[len(magic):]
         session_key = AES_key.get_key()
         iv = cipher_text[:AES.block_size]
-        mode = AES.MODE_CBC
+        mode = AES.MODE_CFB
         cipher = AES.new(session_key, mode, iv)
         plaintext = unpad(cipher.decrypt(cipher_text[AES.block_size:]))
 
