@@ -65,7 +65,7 @@ def generating_keys():
     public_key, private_key = generate_key_pair.generate_key_pair()
 
     e, n = public_key
-    d, a = private_key
+    d, n = private_key
 
     public_key = RSA.construct((n, e))
     private_key = RSA.construct((n, e, d))
